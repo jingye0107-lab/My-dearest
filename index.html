@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Valentine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-pink: #fff0f5;
+            --main-pink: #d81b60;
+            --shadow-pink: #f8bbd0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: white; 
+            font-family: 'Press Start 2P', cursive;
+            transition: background-color 1.5s ease;
+            overflow: hidden; 
+        }
+
+        /* --- ENVELOPE SYSTEM --- */
+        #envelope-container {
+            position: relative;
+            z-index: 1000;
+            cursor: pointer;
+            transition: opacity 1s ease;
+        }
+
+        .envelope-img {
+            width: 350px; 
+            image-rendering: pixelated;
+            transition: transform 0.2s ease;
+        }
+
+        /* Shared Bouncy Animation */
+        .pixel-bounce {
+            animation: pixelOpen 0.4s ease-out forwards;
+        }
+
+        @keyframes pixelOpen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1.1) rotate(0deg); }
+        }
+
+        /* Specialized bounce for the growing Yes button to maintain scale */
+        @keyframes yesBounce {
+            0% { transform: scale(var(--current-scale)); }
+            50% { transform: scale(calc(var(--current-scale) * 1.2)) rotate(-5deg); }
+            100% { transform: scale(var(--current-scale)) rotate(0deg); }
+        }
+
+        .envelope-img:hover { transform: scale(1.05); }
+
+        /* --- MAIN CONTENT --- */
+        .container { 
+            text-align: center; 
+            position: relative; 
+            padding: 30px;
+            background: white;
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px var(--shadow-pink);
+            z-index: 10;
+            min-width: 380px;
+            display: none; 
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        
+        h1 { color: var(--main-pink); font-size: 1rem; line-height: 1.8; margin-bottom: 20px; }
+        
+        .pop-up {
+            position: absolute;
+            background: white;
+            padding: 10px;
+            border: 3px solid black;
+            font-size: 0.6rem;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            animation: pixelPop 1s steps(5) forwards;
+            z-index: 200;
+        }
+
+        @keyframes pixelPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: translateY(-70px); opacity: 0; }
+        }
+
+        .buttons { 
+            display: flex; gap: 210px; justify-content: center; align-items: center; 
+            margin-top: 20px; position: relative; min-height: 60px;
+        }
+        
+        button {
+            padding: 15px 25px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            border: 4px solid black;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #000;
+            transition: transform 0.1s ease;
+        }
+
+        #yesBtn { background-color: #4caf50; color: white; --current-scale: 1; }
+        #noBtn { background-color: #f44336; color: white; }
+
+        .display-img { 
+            width: 250px; height: 250px; object-fit: cover; 
+            border: 6px solid white; outline: 4px solid black; margin-bottom: 10px;
+        }
+
+        .particle {
+            position: absolute; font-size: 1.5rem;
+            animation: fall 3s linear forwards; z-index: 5;
+        }
+
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="envelope-container" onclick="handleOpening()">
+        <img id="envImage" src="https://i.pinimg.com/1200x/37/a8/db/37a8db53eae323505cf91ff9e81909f5.jpg" class="envelope-img" alt="Envelope">
+    </div>
+
+    <div class="container" id="mainContainer">
+        <h1 id="question">Will you be my Valentine???</h1>
+        <img id="displayImg" class="display-img" src="https://i.pinimg.com/736x/3e/ec/b0/3eecb091c987f609d4da25af4ab1293f.jpg">
+        <div class="buttons" id="buttonWrapper">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
+    </div>
+
+    <script>
+        const envContainer = document.getElementById('envelope-container');
+        const envImage = document.getElementById('envImage');
+        const mainContainer = document.getElementById('mainContainer');
+        const body = document.body;
+
+        let isOpened = false;
+
+        function handleOpening() {
+            if (!isOpened) {
+                isOpened = true;
+                envImage.classList.add('pixel-bounce');
+                setTimeout(() => {
+                    envImage.src = 'https://i.pinimg.com/1200x/67/e0/f4/67e0f4f3f0767b6fbedd9311331c0398.jpg';
+                }, 200);
+                
+                setTimeout(() => {
+                    envContainer.style.opacity = '0';
+                    setTimeout(() => {
+                        envContainer.style.display = 'none';
+                        body.style.backgroundColor = '#fff0f5';
+                        mainContainer.style.display = 'block';
+                        setTimeout(() => mainContainer.style.opacity = '1', 100);
+                    }, 1000);
+                }, 1200);
+            }
+        }
+
+        // --- BUTTON LOGIC ---
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const displayImg = document.getElementById('displayImg');
+        const buttonWrapper = document.getElementById('buttonWrapper');
+        const questionText = document.getElementById('question');
+
+        let yesSize = 1;
+        let phraseIndex = 0;
+
+        const phrases = ["HELLO?", "WHAT?", "HUHH??", "Watch it.", "You're pushing it.", "LAST CHANCE.", "You hate me.", "Press Yes Now.", "Now.", "Please Baby?."];
+        
+        const noImages = [
+            "https://i.pinimg.com/736x/8a/9a/75/8a9a75b6b7dc6ad3282ef182a109ba20.jpg",
+            "https://i.pinimg.com/736x/81/96/c8/8196c820a858eeade97c3e99629ddb52.jpg",
+            "https://i.pinimg.com/736x/5d/2a/54/5d2a5447cee9d2e166d06b5359cc2de8.jpg",
+            "https://i.pinimg.com/736x/cd/ce/4d/cdce4d9cb98d140e949fc2571d7ebc6e.jpg",
+            "https://i.pinimg.com/736x/db/b5/c5/dbb5c5ce778d99d3471c5864280b0588.jpg",
+            "https://i.pinimg.com/736x/60/b3/34/60b334169db212d43ee95f25e7118e55.jpg",
+            "https://i.pinimg.com/736x/04/fe/e6/04fee6d507ad656be5ae8bab20040d08.jpg",
+            "https://i.pinimg.com/736x/03/34/67/0334677248bc095dfe3e5d450e1e086b.jpg",
+            "https://i.pinimg.com/736x/19/12/c1/1912c1acd6dfb53a1989486689cf6350.jpg",
+            "https://i.pinimg.com/736x/56/dc/76/56dc76fa78c83aafe26b27916f40765f.jpg"
+        ];
+
+        const yesSequence = [
+            { text: "REALLY??", img: "https://i.pinimg.com/736x/91/02/27/910227f8cc73b3ea75b24a45a5a1950d.jpg" },
+            { text: "YOU SURE??", img: "https://i.pinimg.com/736x/bb/10/11/bb10113874506639cc754892ab6becf6.jpg" },
+            { text: "NO TAKE BACKS!", img: "https://i.pinimg.com/736x/a3/74/2d/a3742d4fb26721abae2e6a0f251fabcb.jpg" }
+        ];
+
+        function triggerBounce(btn, isYes = false) {
+            btn.style.animation = 'none';
+            btn.offsetHeight; // trigger reflow
+            btn.style.animation = isYes ? 'yesBounce 0.4s ease-out forwards' : 'pixelOpen 0.4s ease-out forwards';
+        }
+
+        noBtn.addEventListener('click', () => {
+            if (phraseIndex < phrases.length) {
+                triggerBounce(noBtn);
+                displayImg.src = noImages[phraseIndex];
+                
+                const popup = document.createElement('div');
+                popup.className = 'pop-up';
+                popup.innerText = phrases[phraseIndex];
+                const randomX = (Math.random() - 0.5) * 400; 
+                const randomY = (Math.random() - 0.5) * 400;
+                popup.style.left = `calc(50% + ${randomX}px)`;
+                popup.style.top = `calc(50% + ${randomY}px)`;
+                document.body.appendChild(popup);
+                setTimeout(() => popup.remove(), 1000);
+
+                if (phraseIndex === phrases.length - 1) {
+                    noBtn.style.display = "none"; 
+                    buttonWrapper.style.gap = "0"; 
+                    yesSize = 2.5;
+                    yesBtn.style.setProperty('--current-scale', yesSize);
+                    yesBtn.style.transform = `scale(${yesSize})`; 
+                } else {
+                    yesSize += 0.4;
+                    yesBtn.style.setProperty('--current-scale', yesSize);
+                    yesBtn.style.transform = `scale(${yesSize})`;
+                    phraseIndex++;
+                }
+            }
+        });
+
+        yesBtn.addEventListener('click', async () => {
+            triggerBounce(yesBtn, true);
+            await new Promise(r => setTimeout(r, 400));
+            buttonWrapper.style.display = "none";
+
+            for (let i = 0; i < yesSequence.length; i++) {
+                questionText.innerText = yesSequence[i].text;
+                displayImg.src = yesSequence[i].img;
+                await new Promise(r => setTimeout(r, 1200));
+            }
+            
+            startCelebration();
+            questionText.innerHTML = "YAYYY!!,<br> I LOVE YOUUU, SEE YOU SOON BABEEYYYY <33";
+            displayImg.src = "https://i.pinimg.com/originals/0e/1d/ce/0e1dce10fab9b554efeb15e832290675.gif";
+        });
+
+        function startCelebration() {
+            setInterval(() => {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerHTML = ['❤️', '🌹', '💖'][Math.floor(Math.random()*3)];
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = '-50px';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 3000);
+            }, 150);
+        }
+    </script>
+</body>
+</html>
